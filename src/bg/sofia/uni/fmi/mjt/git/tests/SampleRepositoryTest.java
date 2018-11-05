@@ -21,7 +21,7 @@ public class SampleRepositoryTest {
     @Test
     public void testAdd_MultipleFiles() {
         Result actual = repo.add("foo.txt", "bar.txt", "baz.txt");
-        assertSuccess("added foo.txt, bar.txt, baz.txt to stage", actual);
+        assertSuccess("added foo.txt, bar.txt, baz.txt, to stage", actual);
     }
 
     @Test
