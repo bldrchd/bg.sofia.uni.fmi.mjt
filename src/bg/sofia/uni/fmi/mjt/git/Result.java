@@ -1,13 +1,18 @@
 package bg.sofia.uni.fmi.mjt.git;
 
 public class Result {
+    
     private String message;
     private boolean successful = false;
-    private boolean duplication = false;
     
     public Result(){
         
     }
+    public Result(boolean successful, String message){
+        this.message = message;
+        this.successful = successful;
+    }
+    
     public boolean isSuccessful() {
         return successful;
     }
@@ -21,16 +26,6 @@ public class Result {
     
     public void setMessage(String _message){
         this.message = _message;
-    }
-    public void log(){
-        //return currentBranch 's history
-        
-    }
-    public void setDuplicationStatus(boolean duplication){
-        this.duplication = duplication;
-    }
-    public boolean getDuplicationStatus() {
-        return this.duplication;
     }
 
 }

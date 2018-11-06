@@ -1,18 +1,34 @@
 package bg.sofia.uni.fmi.mjt.git;
 
+import java.security.GeneralSecurityException;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.TreeSet;
 
 public class Repository {
 
     private LinkedHashSet<String> staging;
+    private LinkedHashSet<?> repo;
+    private LinkedList<Commit> commitHistory;
+    private TreeSet<String> branches;
+
+    private Branch currentBranch;
     private Branch branch;
     private String resultMessage;
-    private int filesChangedAdd; //TODO - change to filesChanged : both from add and remove
+    private int filesChangedAdd; // TODO - change to filesChanged : both from
+                                 // add and remove
+    private Commit commit;
 
     public Repository() {
         staging = new LinkedHashSet<>();
+        commitHistory = new LinkedList<>();
+        branches = new TreeSet();
+        repo = new LinkedHashSet<>();
         branch = new Branch();
+        commit = new Commit(branch);
+        currentBranch = branch;
     }
 
     public Result add(String... files) {
@@ -38,24 +54,19 @@ public class Repository {
         return result;
     }
 
-    public Result commit(String string) {
-        Result result = new Result();
+    public Result commit(String string) throws GeneralSecurityException { //TODO - check construction of result if could be better
         if (string == null) {
-                    System.out.println("Enter commit message");
-                    return null;
-                } else {
-                    if (filesChangedAdd == 0){ //TODO - last changes from commit?
-                        resultMessage = "nothing to commit, working tree clean";
-                        result.setMessage(resultMessage);
-                        result.setSuccessful(false);
-                    } else {
-                        resultMessage = filesChangedAdd + " files changed";
-                        result.setMessage(resultMessage);
-                        result.setSuccessful(true);
-                    }
-                }
-        return result;
-      }
+            System.out.println("Enter commit message");
+            return new Result(false, "Enter commit message");
+        } else {
+            if (filesChangedAdd == 0) { // TODO - last changes from commit?
+                return new Result(false, "nothing to commit, working tree clean");
+            } else {
+                    commitChanges(staging, string);
+                    return new Result(true, filesChangedAdd + " files changed");
+            }
+        }
+    }
 
     public Result remove(String... files) {
         boolean existing = true;
@@ -70,9 +81,9 @@ public class Repository {
                 result.setSuccessful(false);
             }
         }
-        if (existing){
+        if (existing) {
             int filesChanged = files.length;
-            //TODO - check working or change to foreach?
+            // TODO - check working or change to foreach?
             resultMessage = "added " + filesChanged + " for removal.";
             result.setSuccessful(true);
             result.setMessage(resultMessage);
@@ -80,49 +91,75 @@ public class Repository {
         return result;
     }
 
-    public void createBranch(String branchName) {
-        /*
-         * // the branch is pointer to a commit if (branch.isExisting()) {
-         * result.setMessage("branch " + branchName + "already exists"); } else
-         * { branch = new Branch(branchName); }
-         */
+    public Result log() {
+        return getHistory(branch);
+    }
+
+    public Result getHistory(Branch branch) {
+        for (Commit commit : commitHistory) {
+            if (!commitHistory.contains(branch)) {
+               return new Result(false, ("branch " + branch + "does not have any commits yet"));
+            } else {
+                if (this.branch == branch) {
+                    // result.setMessage( commit.history(commit.currentBranch,
+                    // commit.hashValue, commit.date, commit.commitMsg));
+                }
+            }
+        }
+        return result;
+    }
+
+    public String getBranch() {
+        return branch.getBranchName();
+    }
+
+    public Result createBranch(String branchName) {
+        if (branches.contains(branchName)) {
+            return new Result(false, branchName + " already exist");
+        } else {
+            if (createNewBranch(branchName)){
+                return new Result(true, "created branch " + branchName);
+            } else {
+                return new Result(false,"cannot create branch" + branchName);
+            }
+        }
     }
 
     public Result checkoutBranch(String string) {
-        // TODO Auto-generated method stub
+
         return null;
     }
 
-    /*
-     * public Result getHead() { // TODO Auto-generated method stub return null;
-     * }
-     */
     public Commit getHead() {
-        return null;
+        // should be from current branch
+        return commitHistory.getLast();
     }
-
-    /*
-     * public Branch getBranch() { return branch; }
-     */
-
-    /*
-     * public void setBranch(Branch branch) { this.branch = branch; }
-     */
-
-    private String buildMessage(String action, String... files) {
-        String msg = null;
-        switch (action) {
-        case "add-t":
-            msg = "added " + files + " to stage";
-            break;
-        case "rm-t":
-            msg = "added " + files + " for removal";
-            break;
-        case "rm-f":
-            msg = files + " did not match any files";
-            break;
+    public String history(Branch branch, String hashValue, LocalDateTime date, String commitMessage) {
+        return "commit " + hashValue + "\nDate: " + date + "\n\n\t" + message;
+        
+    }
+    public void commitChanges(LinkedHashSet<String> staging, String commitMessage) throws GeneralSecurityException {
+        try {
+            hashValue = generateHash(commitMessage);
+            date = LocalDateTime.now();
+            commitMsg = commitMessage;
+            commitHistory.add(new Commit(currentBranch, hashValue, date, commitMsg));
+        } catch (GeneralSecurityException e) {
+            throw new GeneralSecurityException(e.getMessage());
         }
-        return msg;
-
+}
+    public String isExisting(String branchName) {
+        String result;
+        if (branches.contains(branchName)) {
+            result = branchName + " already exist";
+        } else {
+            createNewBranch(branchName);
+            result = "created branch " + branchName;
+        }
+        return result;
     }
+    public boolean createNewBranch(String branchName) {
+        branches.add(branchName);        
+    }
+
 }
