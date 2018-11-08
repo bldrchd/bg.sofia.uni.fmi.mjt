@@ -8,16 +8,13 @@ public class Branch {
     public Branch(){
         setBranchName(DEFAULT_BRANCH);
     }
-    
-    public Branch(String newBranch) {
-        setBranchName(newBranch);
-    }
-    
-    public String getBranchName() {
+    public Branch(String branchName){
+        this.branchName = branchName;
+    } 
+     public String getBranchName() {
         return branchName;
     }
     public void setBranchName(String branchName) {
         this.branchName = branchName;
     }
-    
 }

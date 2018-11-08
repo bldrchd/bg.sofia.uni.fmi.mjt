@@ -4,15 +4,17 @@ import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 
-public class CommitManager {
+public class CommitHashGenerator {
     
-    public CommitManager(){
+    public CommitHashGenerator(){
         
     }
-    public String hexDigest(String input) throws GeneralSecurityException {
-        MessageDigest digest = MessageDigest.getInstance("SHA-1");
+    
+    private String hexDigest(String input) throws GeneralSecurityException {
+        MessageDigest  digest = MessageDigest.getInstance("SHA-1");
         byte[] bytes = digest.digest(input.getBytes(StandardCharsets.UTF_8));
         return convertBytesToHex(bytes);
+        
     }
 
     private String convertBytesToHex(byte[] bytes) {
@@ -24,7 +26,13 @@ public class CommitManager {
         return hex.toString();
     }
 
-    private String generateHash(String message) throws GeneralSecurityException{
-           return hexDigest(message);
+    public String generateHash(String message) {
+        String hex = null;
+        try {
+            return hex = hexDigest(message); 
+        } catch (GeneralSecurityException gse) {
+            gse.getCause();
+        }
+         return hex; 
     }
 }
